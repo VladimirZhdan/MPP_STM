@@ -10,6 +10,7 @@ namespace MPP_STM
     {
         static void Main(string[] args)
         {
+
         }
     }
 }
