@@ -8,9 +8,10 @@ namespace MPP_STM
 {
     public interface IStmTransaction<T> where T: struct
     {
+        bool IsCommited { get; }
         void Commit();
         void Rollback();
-        object Read(IStmRef<T> source);
-        void Write(IStmRef<T> target, object newValue);
+        T Read(StmRef<T> source);
+        void Write(StmRef<T> target, T newValue);
     }
 }

@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 namespace MPP_STM
 {
     public interface IStmRef<T> where T: struct
-    {
-        T Get();
-        void Set(T value);
+    {        
+        T Get(IStmTransaction<T> ctx);
+        void Set(T value, IStmTransaction<T> tx);
     }
 }

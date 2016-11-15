@@ -8,11 +8,23 @@ namespace MPP_STM
 {
     class Stm
     {
-        public static void Do(Action operation)
+        public static object commitLock = new object();
+
+        public static void Do<T>(TransactionBlock<T> block) where T: struct
         {
-
-
-            throw new NotImplementedException();
+            LoggingStmTransaction<T> tx = new LoggingStmTransaction<T>(new StmTransaction<T>());
+            block.SetTx(tx);
+            bool commited = false;
+            while(!commited)
+            {                                
+                block.Run();
+                tx.Commit();
+                commited = tx.IsCommited;
+                if (!commited)
+                {                    
+                    tx.Rollback();                    
+                }                
+            }            
         }
     }
 }

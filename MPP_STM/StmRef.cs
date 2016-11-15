@@ -8,16 +8,37 @@ namespace MPP_STM
 {
     public class StmRef<T> : IStmRef<T> where T: struct
     {
-        private T stmElement;
-
-        public T Get()
+        public RefTuple<T, long> content;
+        public T value
         {
-            return stmElement;
+            get
+            {
+                return content.value;
+            }
         }
 
-        public void Set(T value)
+        public long revision
         {
-            stmElement = value;
+            get
+            {
+                return content.revision;
+            }
+        }
+            
+
+        public StmRef(T value)
+        {
+            content = RefTuple<T, long>.Get(value, 0);
+        }
+
+        public T Get(IStmTransaction<T> ctx)
+        {
+            return ctx.Read(this);
+        }
+
+        public void Set(T value, IStmTransaction<T> tx)
+        {
+            tx.Write(this, value);            
         }
     }
 }
