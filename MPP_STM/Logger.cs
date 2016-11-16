@@ -46,8 +46,5 @@ namespace MPP_STM
                 streamWriter.WriteLine(outputString);
             }
         }
-
-
-
     }
 }

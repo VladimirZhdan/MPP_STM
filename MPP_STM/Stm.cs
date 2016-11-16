@@ -10,9 +10,11 @@ namespace MPP_STM
     {
         public static object commitLock = new object();
 
+        public static bool UseLoggingStmTransaction { get; set; }        
+
         public static void Do<T>(TransactionBlock<T> block) where T: struct
         {
-            LoggingStmTransaction<T> tx = new LoggingStmTransaction<T>(new StmTransaction<T>());
+            IStmTransaction<T> tx = GetStmTransaction<T>();            
             block.SetTx(tx);
             bool commited = false;
             while(!commited)
@@ -25,6 +27,18 @@ namespace MPP_STM
                     tx.Rollback();                    
                 }                
             }            
+        }
+
+        private static IStmTransaction<T> GetStmTransaction<T>() where T:struct
+        {
+            if (UseLoggingStmTransaction)
+            {
+                return new LoggingStmTransaction<T>(new StmTransaction<T>());
+            }
+            else
+            {
+                return new StmTransaction<T>();
+            }                            
         }
     }
 }
