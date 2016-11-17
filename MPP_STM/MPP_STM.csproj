@@ -78,8 +78,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BenchmarkTest.cs" />
+    <Compile Include="ILockRef.cs" />
     <Compile Include="IStmRef.cs" />
     <Compile Include="IStmTransaction.cs" />
+    <Compile Include="LockManager.cs" />
+    <Compile Include="LockRef.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="LoggingStmTransaction.cs" />
     <Compile Include="Program.cs" />

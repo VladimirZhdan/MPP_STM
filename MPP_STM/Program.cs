@@ -15,7 +15,12 @@ namespace MPP_STM
         public static void Main(string[] args)
         {
             Stm.UseLoggingStmTransaction = true;
-            int resultValue = StartTasks();
+
+            string logFileName = "Log.txt";
+            ReCreateFile(logFileName);
+            Logger.LogFileName = logFileName;
+
+            int resultValue = StartStmTasks();
             Console.WriteLine("Result: " + resultValue);
             Console.ReadLine();            
         }
@@ -27,18 +32,14 @@ namespace MPP_STM
             fStream.Close();
         }
 
-        [Benchmark(Description = "StartTasks")]
-        public static int StartTasks()
+        [Benchmark(Description = "StartStmTasks")]
+        public static int StartStmTasks()
         {
-            string logFileName = "Log.txt";
-            ReCreateFile(logFileName);
-            Logger.LogFileName = logFileName;
-
             var variable = new StmRef<int>(0);
 
-            List<Task> task = new List<Task>();            
+            List<Task> taskList = new List<Task>();
 
-            task.Add(
+            taskList.Add(
                 Task.Run(() =>
                 {
                     Stm.Do<int>(new TransactionBlock<int>(
@@ -53,7 +54,7 @@ namespace MPP_STM
                 })
             );
 
-            task.Add(
+            taskList.Add(
                 Task.Run(() =>
                 {
                     Stm.Do<int>(new TransactionBlock<int>(
@@ -65,7 +66,7 @@ namespace MPP_STM
                 })
             );
 
-            task.Add(
+            taskList.Add(
                 Task.Run(() =>
                 {
                     Stm.Do<int>(new TransactionBlock<int>(
@@ -77,7 +78,7 @@ namespace MPP_STM
                 })
             );
 
-            task.Add(
+            taskList.Add(
                 Task.Run(() =>
                 {
                     Stm.Do<int>(new TransactionBlock<int>(
@@ -91,12 +92,70 @@ namespace MPP_STM
                 })
             );
 
-            Task.WaitAll(task.ToArray());            
+            Task.WaitAll(taskList.ToArray());            
 
             return variable.value;
         }
 
-        
+        [Benchmark(Description = "StartLockTasks")]
+        public static int StartTasksWithLock()
+        {
+            LockRef<int> variable = new LockRef<int>(0);
 
+            List<Task> taskList = new List<Task>();
+
+            taskList.Add(
+                Task.Run(() =>
+                {
+                    LockManager.Do(() =>
+                    {
+                        variable.Set(2);
+                        int temp = variable.Get();
+                        temp += 3;
+                        variable.Set(temp);
+                    });                    
+                }
+                )
+            );
+
+            taskList.Add(
+                Task.Run(() =>
+                {
+                    LockManager.Do(() =>
+                    {
+                        variable.Set(3);
+                    });
+                }
+                )
+            );
+
+            taskList.Add(
+                Task.Run(() =>
+                {
+                    LockManager.Do(() =>
+                    {
+                        variable.Set(4);
+                    });
+                }
+                )
+            );
+
+            taskList.Add(
+                Task.Run(() =>
+                {
+                    LockManager.Do(() =>
+                    {
+                        int temp = variable.Get();
+                        temp += 9;
+                        variable.Set(temp);
+                    });
+                }
+                )
+            );
+
+            Task.WaitAll(taskList.ToArray());
+
+            return variable.Get();
+        }        
     }
 }
