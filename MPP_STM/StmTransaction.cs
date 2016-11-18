@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
+
 
 namespace MPP_STM
 {
@@ -12,7 +14,7 @@ namespace MPP_STM
         private Dictionary<StmRef<T>, long> version = new Dictionary<StmRef<T>, long>();
         private List<StmRef<T>> toUpdate = new List<StmRef<T>>();        
         public long revision { get; private set; }
-        private static long transactionNum = 1;
+        public static long transactionNum = 1;       
 
         public bool IsCommited { get; private set; }
 
@@ -48,7 +50,7 @@ namespace MPP_STM
         }
 
         public void Write(StmRef<T> stmRef, T value)
-        {
+        {            
             if (!inTxDict.ContainsKey(stmRef))
             {
                 inTxDict.Add(stmRef, value);
@@ -57,6 +59,10 @@ namespace MPP_STM
             else
             {
                 inTxDict[stmRef] = value;
+                if (!toUpdate.Contains(stmRef))
+                {                    
+                    toUpdate.Add(stmRef);
+                }
             }
             if (!version.ContainsKey(stmRef))
             {
@@ -65,7 +71,7 @@ namespace MPP_STM
         }
 
         public void Commit()
-        {
+        {            
             lock(Stm.commitLock)
             {
                 bool isValid = true;
@@ -78,14 +84,14 @@ namespace MPP_STM
                     }
                 }
                 if(isValid)
-                {
+                {                    
                     foreach (StmRef<T> stmRef in toUpdate)
                     {
-                        stmRef.content = RefTuple<T, long>.Get((T)inTxDict[stmRef], this.revision);                         
+                        stmRef.content = RefTuple<T, long>.Get((T)inTxDict[stmRef], this.revision);
                     }
                 }
-                IsCommited = isValid;                               
-            }            
+                IsCommited = isValid;
+            }                        
         }                
 
         public void Rollback()

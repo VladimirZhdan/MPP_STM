@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MPP_STM
 {
-    class TransactionBlock<T> where T: struct
+    public class TransactionBlock<T> where T: struct
     {
         private IStmTransaction<T> tx;
         private Action<IStmTransaction<T> > operation;

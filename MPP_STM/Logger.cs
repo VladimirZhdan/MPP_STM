@@ -5,12 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using System.IO;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace MPP_STM
 {
     public class Logger
     {
-        public static string LogFileName { get; set; }       
+        public static object logObject = new object();
+        public static string LogFileName { get; set; }
+        public static ConcurrentQueue<string> logsQueue = new ConcurrentQueue<string>();
+        //public static BlockingCollection<string> logsQueue = new BlockingCollection<string>();
+        private Thread logThread = new Thread(new ThreadStart(OutputLogs));
+        public static bool IsNotEndOutputLogs { get; set; }
+        public static bool IsLoggingThreadProgressed { get; private set; }
         
         public Logger()
         {
@@ -18,33 +26,44 @@ namespace MPP_STM
             {
                 LogFileName = "Temp.txt";
             }
-        } 
-        
-        public void ReadLog<T>(MethodBase method, long revision, StmRef<T> stmRef) where T: struct
+            logThread.Start();         
+        }
+
+        public void ReadLog<T>(MethodBase method, long revision, StmRef<T> stmRef) where T : struct
         {
-            using (StreamWriter streamWriter = File.AppendText(LogFileName))
-            {
-                string outputString = ("Transaction №" + revision + " - " + method.Name + "; value = " + stmRef.value + "; version = " + stmRef.revision);
-                streamWriter.WriteLine(outputString);
-            }
+            string outputString = ("Transaction №" + revision + " - " + method.Name + "; value = " + stmRef.value + "; version = " + stmRef.revision);            
+            logsQueue.Enqueue(outputString);      
         }
 
         public void WriteLog<T>(MethodBase method, long revision, StmRef<T> stmRef, T newValue) where T: struct
         {
-            using (StreamWriter streamWriter = File.AppendText(LogFileName))
-            {
-                string outputString = ("Transaction №" + revision + " - " + method.Name + "; OldValue = " + stmRef.value + "; NewValue = " + newValue + "; version = " + stmRef.revision);
-                streamWriter.WriteLine(outputString);
-            }
+            string outputString = ("Transaction №" + revision + " - " + method.Name + "; OldValue = " + stmRef.value + "; NewValue = " + newValue + "; version = " + stmRef.revision);
+            logsQueue.Enqueue(outputString);           
         }
 
         public void Log(MethodBase method, long revision)
         {
+            string outputString = ("Transaction №" + revision + " - " + method.Name);            
+            logsQueue.Enqueue(outputString); 
+        }
+
+        public static void OutputLogs()
+        {
+            IsLoggingThreadProgressed = false;
             using (StreamWriter streamWriter = File.AppendText(LogFileName))
             {
-                string outputString = ("Transaction №" + revision + " - " + method.Name);
-                streamWriter.WriteLine(outputString);
+                string nextLog;
+                bool isLogsInQueue = true;                
+                while (IsNotEndOutputLogs || (logsQueue.Count != 0))
+                {
+                    isLogsInQueue = logsQueue.TryDequeue(out nextLog);
+                    if (isLogsInQueue)
+                    {
+                        streamWriter.WriteLine(nextLog);
+                    }                                
+                }                                
             }
+            IsLoggingThreadProgressed = true;      
         }
     }
 }

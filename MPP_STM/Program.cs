@@ -10,19 +10,27 @@ using BenchmarkDotNet.Attributes;
 namespace MPP_STM
 {
     public class Program
-    {        
-        
+    {                
         public static void Main(string[] args)
         {
-            Stm.UseLoggingStmTransaction = true;
+            int resultValue = StartAndWaitTasksWithLoggingTransactions();
+            Console.WriteLine("Result: " + resultValue);
+            Console.ReadLine();            
+        }
 
+        private static int StartAndWaitTasksWithLoggingTransactions()
+        {
+            Stm.UseLoggingStmTransaction = true;
             string logFileName = "Log.txt";
             ReCreateFile(logFileName);
             Logger.LogFileName = logFileName;
+            Logger.IsNotEndOutputLogs = true;
 
             int resultValue = StartStmTasks();
-            Console.WriteLine("Result: " + resultValue);
-            Console.ReadLine();            
+            Logger.IsNotEndOutputLogs = false;
+            while (!Logger.IsLoggingThreadProgressed) ;
+
+            return resultValue;
         }
 
 
@@ -38,7 +46,7 @@ namespace MPP_STM
             var variable = new StmRef<int>(0);
 
             List<Task> taskList = new List<Task>();
-
+                       
             taskList.Add(
                 Task.Run(() =>
                 {
@@ -73,10 +81,12 @@ namespace MPP_STM
                     (IStmTransaction<int> stmTransaction) =>
                     {
                         variable.Set(4, stmTransaction);
+                        Thread.Sleep(500);
                     }
                     ));
                 })
             );
+            
 
             taskList.Add(
                 Task.Run(() =>
@@ -85,12 +95,13 @@ namespace MPP_STM
                     (IStmTransaction<int> stmTransaction) =>
                     {
                         int temp = variable.Get(stmTransaction);
+                        Thread.Sleep(1000);
                         temp += 9;
                         variable.Set(temp, stmTransaction);
                     }
                     ));
                 })
-            );
+            );                        
 
             Task.WaitAll(taskList.ToArray());            
 

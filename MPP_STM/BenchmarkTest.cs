@@ -86,8 +86,12 @@ namespace MPP_STM
                 {
                     Stm.Do<int>(new TransactionBlock<int>(
                     (IStmTransaction<int> stmTransaction) =>
-                    {                        
-                        int temp = variable.Get(stmTransaction);
+                    {
+                        int[] temp = new int[10];
+                        for (int i = 0; i < 10; i++)
+                        {
+                            temp[i] = variable.Get(stmTransaction);
+                        }                            
                     }
                     ));
                 })
@@ -99,7 +103,11 @@ namespace MPP_STM
                     Stm.Do<int>(new TransactionBlock<int>(
                     (IStmTransaction<int> stmTransaction) =>
                     {
-                        int temp = variable.Get(stmTransaction);
+                        int[] temp = new int[10];
+                        for (int i = 0; i < 10; i++)
+                        {
+                            temp[i] = variable.Get(stmTransaction);
+                        }
                     }
                     ));
                 })
@@ -111,7 +119,11 @@ namespace MPP_STM
                     Stm.Do<int>(new TransactionBlock<int>(
                     (IStmTransaction<int> stmTransaction) =>
                     {
-                        int temp = variable.Get(stmTransaction);
+                        int[] temp = new int[10];
+                        for (int i = 0; i < 10; i++)
+                        {
+                            temp[i] = variable.Get(stmTransaction);
+                        }
                     }
                     ));
                 })
@@ -123,7 +135,11 @@ namespace MPP_STM
                     Stm.Do<int>(new TransactionBlock<int>(
                     (IStmTransaction<int> stmTransaction) =>
                     {
-                        int temp = variable.Get(stmTransaction);
+                        int[] temp = new int[10];
+                        for (int i = 0; i < 10; i++)
+                        {
+                            temp[i] = variable.Get(stmTransaction);
+                        }
                     }
                     ));
                 })
@@ -135,7 +151,11 @@ namespace MPP_STM
                     Stm.Do<int>(new TransactionBlock<int>(
                     (IStmTransaction<int> stmTransaction) =>
                     {
-                        int temp = variable.Get(stmTransaction);
+                        int[] temp = new int[10];
+                        for (int i = 0; i < 10; i++)
+                        {
+                            temp[i] = variable.Get(stmTransaction);
+                        }
                     }
                     ));
                 })
@@ -150,15 +170,18 @@ namespace MPP_STM
         public int StartReadingTasksWithLock()
         {
             LockRef<int> variable = new LockRef<int>(0);
-
             List<Task> taskList = new List<Task>();
 
             taskList.Add(
                 Task.Run(() =>
                 {
                     LockManager.Do(() =>
-                    {                        
-                        int temp = variable.Get();
+                    {
+                        int[] temp = new int[10];
+                        for(int i = 0; i < 10; i++)
+                        {
+                            temp[i] = variable.Get();
+                        }                                                   
                     });
                 }
                 )
@@ -169,7 +192,11 @@ namespace MPP_STM
                 {
                     LockManager.Do(() =>
                     {
-                        int temp = variable.Get();
+                        int[] temp = new int[10];
+                        for (int i = 0; i < 10; i++)
+                        {
+                            temp[i] = variable.Get();
+                        }                            
                     });
                 }
                 )
@@ -180,7 +207,11 @@ namespace MPP_STM
                 {
                     LockManager.Do(() =>
                     {
-                        int temp = variable.Get();
+                        int[] temp = new int[10];
+                        for (int i = 0; i < 10; i++)
+                        {
+                            temp[i] = variable.Get();
+                        }                            
                     });
                 }
                 )
@@ -191,7 +222,11 @@ namespace MPP_STM
                 {
                     LockManager.Do(() =>
                     {
-                        int temp = variable.Get();
+                        int[] temp = new int[10];
+                        for (int i = 0; i < 10; i++)
+                        {
+                            temp[i] = variable.Get();
+                        }                            
                     });
                 }
                 )
@@ -202,14 +237,17 @@ namespace MPP_STM
                 {
                     LockManager.Do(() =>
                     {
-                        int temp = variable.Get();
+                        int[] temp = new int[10];
+                        for (int i = 0; i < 10; i++)
+                        {
+                            temp[i] = variable.Get();
+                        }                            
                     });
                 }
                 )
             );
 
             Task.WaitAll(taskList.ToArray());
-
             return variable.Get();
         }
     }

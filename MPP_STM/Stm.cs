@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MPP_STM
 {
-    class Stm
+    public class Stm
     {
         public static object commitLock = new object();
 
