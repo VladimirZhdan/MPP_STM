@@ -143,20 +143,21 @@ namespace MPP_STM.Tests
                         if (!transactionDict[temp.number].NeedRollback)
                         {
                             transactionDict[temp.number].IsCommited = true;
-                        }
-                        if(!transactionDict[temp.number].IsOnlyReadingTransaction)
-                        {
-                            foreach (KeyValuePair<int, Transaction> transactionPair in transactionDict)
+                            if (!transactionDict[temp.number].IsOnlyReadingTransaction)
                             {
-                                if (transactionPair.Key != temp.number)
+                                foreach (KeyValuePair<int, Transaction> transactionPair in transactionDict)
                                 {
-                                    if (!transactionPair.Value.IsCommited)
+                                    if (transactionPair.Key != temp.number)
                                     {
-                                        transactionPair.Value.NeedRollback = true;
+                                        if (!transactionPair.Value.IsCommited)
+                                        {
+                                            transactionPair.Value.NeedRollback = true;
+                                        }
                                     }
                                 }
                             }
-                        }                        
+                        }
+                                                
                         break;
                 }
             }
