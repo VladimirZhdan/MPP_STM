@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MPP_STM
+﻿namespace MPP_STM
 {
     public class Stm
-    {
-        public static object commitLock = new object();
-
+    {        
         public static bool UseLoggingStmTransaction { get; set; }        
 
         public static void Do<T>(TransactionBlock<T> block) where T: struct

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MPP_STM
 {
@@ -26,7 +22,7 @@ namespace MPP_STM
             return tx;
         }
 
-        public virtual void Run()
+        public void Run()
         {
             operation.Invoke(this.getTx());
         }

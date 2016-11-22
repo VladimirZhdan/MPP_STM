@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace MPP_STM.Tests
-{
+{    
     public enum TransactionAction
     {
         READ,

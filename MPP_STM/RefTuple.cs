@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MPP_STM
+﻿namespace MPP_STM
 {
     public class RefTuple<V, R>
     {
-        public V value;
-        public R revision;
+        public V Value { get; private set; }
+        public R Version { get; private set; }
+        public R ParentVersion { get; private set; }
 
-        public RefTuple(V value, R revision)
+        public RefTuple(V value, R version, R parentVersion)
         {
-            this.value = value;
-            this.revision = revision;
+            this.Value = value;
+            this.Version = version;
+            this.ParentVersion = parentVersion;
         }
 
-        public static RefTuple<V, R> Get(V value, R revision)
+        public static RefTuple<V, R> Get(V value, R version, R parentVersion)
         {
-            return new RefTuple<V, R>(value, revision);
+            return new RefTuple<V, R>(value, version, parentVersion);
         }
     }
 }
